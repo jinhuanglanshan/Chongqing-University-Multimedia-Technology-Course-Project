@@ -1,0 +1,3 @@
+1.请使用Chrome浏览器打开index.html
+2.请确保使用之前联网
+2.因为Access Token的有效期为30天，若出现无法播放，则是由于Access Token过期，可参照百度AI官网API文档重新获取

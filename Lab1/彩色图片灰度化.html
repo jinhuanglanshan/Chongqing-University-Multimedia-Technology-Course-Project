@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>彩色图像灰度化</title>
+</head>
+<body>
+<input type="file" onchange="loadImg()" />
+<div>
+<input type="range" id="myRange" value="1000" max="1200" min="800" onmousemove="Convert256toGray1()">
+<input type="button" value="加权平均值法灰度化" onclick="Convert256toGray1()" />
+</div>
+<div>
+<input type="range" id="myRange1" value="1000" max="1200" min="800" onmousemove="Convert256toGray2()">
+<input type="button" value="最大值法灰度化" onclick="Convert256toGray2()" />
+</div>
+<div>
+<input type="range" id="myRange2" value="1000" max="1200" min="800" onmousemove="Convert256toGray3()">
+<input type="button" value="平均灰度化" onclick="Convert256toGray3()" />
+</div>
+<div style="display:none"><img id="scream" width="400px" height="300px" style="visibility:invisible"></div>
+<canvas id="canvas1" width="400px;" height="300px;" alt="Image preview..."></canvas>
+<canvas id="canvas" width="400px;" height="300px;"></canvas>
+<p id="demo"></p>
+    <script>
+        function Convert256toGray1() {//加权平均值法
+            var c = document.getElementById("canvas1");
+            var ctx = c.getContext("2d");
+            var imgData = ctx.getImageData(0, 0, c_w, c_h);
+            var x = document.getElementById("myRange").value;
+            for (var i = 0; i < imgData.data.length; i += 4) {
+                var R = imgData.data[i]; //R(0-255)
+                var G = imgData.data[i + 1]; //G(0-255)
+                var B = imgData.data[i + 2]; //G(0-255)
+                var Alpha = imgData.data[i + 3]; //Alpha(0-255)
+                var gray = (R * 0.299 + G * 0.587 + B * 0.114)*x/1000;
+                imgData.data[i] = gray;
+                imgData.data[i + 1] = gray;
+                imgData.data[i + 2] = gray;
+                imgData.data[i + 3] = Alpha;
+            }
+            var c = document.getElementById("canvas");
+            var ctx = c.getContext("2d");
+            ctx.putImageData(imgData, 0, 0);
+        }
+        function Convert256toGray2() {//最大值法
+                var c = document.getElementById("canvas1");
+                var ctx = c.getContext("2d");
+                var imgData = ctx.getImageData(0, 0, c_w, c_h);
+                var x = document.getElementById("myRange1").value;
+                for (var i = 0; i < imgData.data.length; i += 4) {
+                    var R = imgData.data[i]; //R(0-255)
+                    var G = imgData.data[i + 1]; //G(0-255)
+                    var B = imgData.data[i + 2]; //G(0-255)
+                    var Alpha = imgData.data[i + 3]; //Alpha(0-255)
+                    var gray = Math.max(R,G,B) * x / 1000;
+                    imgData.data[i] = gray;
+                    imgData.data[i + 1] = gray;
+                    imgData.data[i + 2] = gray;
+                    imgData.data[i + 3] = Alpha;
+                }
+                var c = document.getElementById("canvas");
+                var ctx = c.getContext("2d");
+                ctx.putImageData(imgData, 0, 0);
+            }
+        function Convert256toGray3() { //平均值算法
+                    var c = document.getElementById("canvas1");
+                    var ctx = c.getContext("2d");
+                    var imgData = ctx.getImageData(0, 0, c_w, c_h);
+                    var x = document.getElementById("myRange2").value;
+                    for (var i = 0; i < imgData.data.length; i += 4) {
+                        var R = imgData.data[i]; //R(0-255)
+                        var G = imgData.data[i + 1]; //G(0-255)
+                        var B = imgData.data[i + 2]; //G(0-255)
+                        var Alpha = imgData.data[i + 3]; //Alpha(0-255)
+                        var gray = (R+G+B)/3 * x / 1000;
+                        imgData.data[i] = gray;
+                        imgData.data[i + 1] = gray;
+                        imgData.data[i + 2] = gray;
+                        imgData.data[i + 3] = Alpha;
+                    }
+                    var c = document.getElementById("canvas");
+                    var ctx = c.getContext("2d");
+                    ctx.putImageData(imgData, 0, 0);
+                }
+               //canvas图像的宽高 
+        var c_w = 400;
+        var c_h = 300;
+        //加载img图像
+        function loadImg() {
+            var img = document.getElementById("scream");
+            var file = document.querySelector('input[type=file]').files[0];
+            if (!/image\/\w+/.test(file.type)) {
+                alert("文件必须为图片！");
+                return false;
+            }
+            var reader = new FileReader();
+            reader.addEventListener("load", function () {
+               img.src = reader.result;
+            }, false);
+            if (file) {
+                reader.readAsDataURL(file);
+                loadCanvas();
+            }
+        }
+        //加载canvas图像
+        function loadCanvas() {
+            var c = document.getElementById("canvas");
+            var ctx = c.getContext("2d");
+            var img = document.getElementById("scream");
+            img.onload = function () {
+                ctx.drawImage(img, 0, 0, c_w, c_h);
+            }
+            var b = document.getElementById("canvas1");
+            var btx = b.getContext("2d");
+            var img = document.getElementById("scream");
+            img.onload = function () {
+                btx.drawImage(img, 0, 0, c_w, c_h);
+            }
+        }
+    </script>
+</body>
+</html>

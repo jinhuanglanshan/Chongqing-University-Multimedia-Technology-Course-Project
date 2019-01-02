@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>JS Bin</title>
+  <script type="text/javascript" src="baidu_tts_cors.js"></script>
+  <script type="text/javascript">
+
+    // 初始化变量
+    var audio = null;
+    var playBtn = null;
+
+    // dom加载完毕回调后注册按钮对象
+    ready(function() {
+        playBtn = document.getElementById('playBtn');
+    });
+
+    // 合成按钮
+    function tts() {
+        let text = document.getElementById('text').value;//从文本框中获取待转换的文字内容
+        playBtn.innerText = '准备中';
+        var voicekind = document.getElementById("per").value;//从下拉框中获取合成声音的类别
+        voicekind=parseInt(voicekind);
+        var voicepid = document.getElementById("pid").value;//从下拉框中获取合成声音的语调
+        voicepid=parseInt(voicepid);
+        var voicespd = document.getElementById("spd").value;//从下拉框中获取合成声音的速度
+        voicespd=parseInt(voicespd);
+        audio = btts({
+            tex: text,
+            tok: '24.bf0984582ead5845a97dda002e62ab52.2592000.1547540963.282335-15178273',//填写Access Token
+            spd: voicespd,//声音的速度
+            pit: voicepid,//声音的语调
+            vol: 15,//声音的大小
+            per: voicekind,//声音的类别
+            }, 
+            {
+            volume: 0.3,
+            autoDestory: true,
+            timeout: 10000,
+            hidden: false,
+            onInit: function (htmlAudioElement) {
+
+            },
+            onSuccess: function(htmlAudioElement) {
+                audio = htmlAudioElement;
+                playBtn.innerText = '播放';
+            },
+            onError: function(text) {
+                alert(text)
+            },
+            onTimeout: function () {
+                alert('timeout')
+            }
+        });
+    }
+
+    // 播放按钮
+    function play() {
+        if (audio === null) {
+            alert('请先点击合成')
+        } else {
+            audio.play();
+        }
+    }
+
+    // 暂停按钮
+    function pause() {
+        if (audio === null) {
+            alert('请先点击合成')
+        } else {
+            audio.pause();
+        }
+    }
+
+    // 取消按钮
+    function cancel() {
+        if (audio === null) {
+            alert('请先点击合成')
+        } else {
+            audio.pause();
+            document.body.removeChild(audio);
+            audio = null;
+            playBtn.innerText = '准备中';
+        }
+    }
+
+    // dom加载完毕回调
+    function ready(callback){
+        var doc = document;
+        if (doc.addEventListener) {
+            doc.addEventListener('DOMContentLoaded', function() {
+                callback();
+            }, false);
+        } else if (doc.attachEvent) {
+            doc.attachEvent('onreadystatechange', function() {
+                if (doc.readyState === 'complete') {
+                    callback();
+                }
+            });
+        }
+    }
+  </script>
+</head>
+<body>
+    <div>
+        <!-- <input type="text" id='text' value='百度语音合成' style='width: 500px;'> -->
+        <textarea id="text" cols="20" rows="6" style="OVERFLOW:   hidden"></textarea>
+        <button onclick='tts()'>合成</button>
+        <button onclick='play()' id='playBtn'>准备中</button>
+        <button onclick='pause()'>暂停</button>
+        <button onclick='cancel()'>取消</button>
+    </div>
+<div>
+    <p>声音模式选择</p>
+<select id="per">
+    <option value="0">女声</option>
+    <option value="1">男声</option>
+    <option value="3">带有情感的男声</option>
+    <option value="4">带有情感的女声</option>
+</select>
+<p>语调选择</p>
+<select id="pid">
+    <option value="0">低</option>
+    <option value="5">中</option>
+    <option value="15">高</option>
+</select>
+<p>语速选择</p>
+<select id="spd">
+    <option value="0">最慢</option>
+    <option value="3">较慢</option>
+    <option value="5">中等</option>
+    <option value="8">较快</option>
+    <option value="12">最快</option>
+</select>
+</div>
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>生成过渡动画</title>
+</head>
+<script>
+        //加载起始帧
+        function loadOriginalImg() {
+            var img = document.getElementById("scream1");
+            var file = document.querySelectorAll('input[type=file]')[0].files[0];
+            if (!/image\/\w+/.test(file.type)) {
+                alert("文件必须为图片！");
+                return false;
+            }
+            var reader = new FileReader();
+            reader.addEventListener("load", function () {
+                img.src = reader.result;
+            }, false);
+            if (file) {
+                reader.readAsDataURL(file);
+                loadOrignalCanvas();
+            }
+        }
+        
+        function loadOrignalCanvas() {
+            var c = document.getElementById("canvas1");
+            var ctx = c.getContext("2d");
+            var a = document.getElementById("canvas3");
+            var atx = a.getContext("2d");
+            var img = document.getElementById("scream1");
+            img.onload = function () {
+                ctx.drawImage(img, 0, 0,400, 300);
+                atx.drawImage(img, 0, 0,400, 300);
+            }
+        }
+
+        //加载终止帧
+        function loadTerminalImg() {
+            var img = document.getElementById("scream2");
+            var file = document.querySelectorAll('input[type=file]')[1].files[0];
+            if (!/image\/\w+/.test(file.type)) {
+                alert("文件必须为图片！");
+                return false;
+            }
+            var reader = new FileReader();
+            reader.addEventListener("load", function () {
+                img.src = reader.result;
+            }, false);
+            if (file) {
+                reader.readAsDataURL(file);
+                loadTerminalCanvas();
+            }
+        }
+
+        function loadTerminalCanvas() {
+            var b = document.getElementById("canvas2");
+            var btx = b.getContext("2d");
+            var img = document.getElementById("scream2");
+            img.onload = function () {
+                btx.drawImage(img, 0, 0, 400, 300);
+            }
+        }
+        
+        //产生中间帧
+        function ProduceMidFrame(){
+                var k = document.getElementById("pid").value;
+                var c1 = document.getElementById("canvas1");
+                var ctx1 = c1.getContext("2d");
+                var imgData1 = ctx1.getImageData(0, 0, 400, 300);
+                var c2 = document.getElementById("canvas2");
+                var ctx2 = c2.getContext("2d");
+                var imgData2 = ctx2.getImageData(0, 0, 400, 300);
+                var c3 = document.getElementById("canvas3");
+                var ctx3 = c3.getContext("2d");
+                var imgData3 = ctx3.getImageData(0, 0, 400, 300);
+
+                for(var  j = 0; j < k; j++){
+                for (var i = 0; i < imgData3.data.length; i += 4) {
+                imgData3.data[i] = imgData3.data[i]+(imgData2.data[i]-imgData1.data[i])/k; //R(0-255)
+                imgData3.data[i + 1] = imgData3.data[i+1]+(imgData2.data[i+1]-imgData1.data[i+1])/k; //G(0-255)
+                imgData3.data[i + 2] = imgData3.data[i+2]+(imgData2.data[i+2]-imgData1.data[i+2])/k; //B(0-255)
+                imgData3.data[i + 3] = imgData3.data[i+3]+(imgData2.data[i+3]-imgData1.data[i+3])/k;
+                }
+                var x=document.getElementById("canvas3").cloneNode(true);
+                var ctx=x.getContext("2d");
+	            ctx.putImageData(imgData3, 0, 0);
+	            document.body.appendChild(x); 
+        }}
+
+        //产生动画
+        function ProduceAnimation(){
+                var x = document.getElementById("myRange").value;
+                var k = document.getElementById("pid").value;
+                document.getElementById("myRange").setAttribute("max", k);
+                var c1 = document.getElementById("canvas1");
+                var ctx1 = c1.getContext("2d");
+                var imgData1 = ctx1.getImageData(0, 0, 400, 300);
+                var c2 = document.getElementById("canvas2");
+                var ctx2 = c2.getContext("2d");
+                var imgData2 = ctx2.getImageData(0, 0, 400, 300);
+                var imgData3 = imgData1;
+                for (var i = 0; i < imgData1.data.length; i += 4) {
+                imgData3.data[i] = imgData1.data[i]+(imgData2.data[i]-imgData1.data[i])/k*x; //R(0-255)
+                imgData3.data[i + 1] = imgData1.data[i+1]+(imgData2.data[i+1]-imgData1.data[i+1])/k*x; //G(0-255)
+                imgData3.data[i + 2] = imgData1.data[i+2]+(imgData2.data[i+2]-imgData1.data[i+2])/k*x; //B(0-255)
+                imgData3.data[i + 3] = imgData1.data[i+3]+(imgData2.data[i+3]-imgData1.data[i+3])/k*x;}
+                var x=document.getElementById("canvas4");
+                var ctx=x.getContext("2d");
+	            ctx.putImageData(imgData3, 0, 0);
+        }
+</script>
+<body>
+    <span>
+    <a>选择起始帧</a>    
+    <input type="file" value="选择起始帧" onchange="loadOriginalImg()" />
+    <div style="display:none"><img id="scream1" width="400px" height="300px" style="visibility:invisible"></div>
+    <canvas border="1px" id="canvas1" width="400px;" height="300px;" style="border:1px solid"></canvas>    </span>
+    
+    <div>
+    <a>选择终止帧</a>  
+    <input type="file" value="选择终止帧" onchange="loadTerminalImg()" />
+    <div style="display:none"><img id="scream2" width="400px" height="300px" style="visibility:invisible；"></div>
+    <canvas id="canvas2" width="400px;" height="300px;" style="border:1px solid"></canvas>
+    </div>
+
+    <div>
+    <a>帧数选择</a>   
+    <select id="pid">
+        <option value="3">3</option>
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="15">15</option>
+        <option value="20">20</option>
+        <option value="25">25</option>
+        <option value="25">30</option>
+    </select>
+    <a>拖动滑动条查看动画</a>
+    <input type="range" id="myRange" value="0" max="10" min="0" onmousemove="ProduceAnimation()">
+    <canvas id="canvas4" width="400px;" height="300px;" style="border:1px solid"></canvas>
+    </div>
+    <br><br><br>
+    <div>
+        <input type="button" value="生成中间帧" onclick="ProduceMidFrame()" />
+    </div>
+    <div  style="visibility:hidden" >
+    <canvas id="canvas3" width="400px;" height="300px;" ></canvas>
+    </div> 
+</body>
+
+</html>
